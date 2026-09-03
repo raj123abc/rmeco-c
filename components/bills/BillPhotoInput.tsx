@@ -1,14 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useState } from "react";
 
 type BillPhotoInputProps = {
   hasCurrentImage?: boolean;
 };
 
 export function BillPhotoInput({ hasCurrentImage }: BillPhotoInputProps) {
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
   const [selectedFile, setSelectedFile] = useState("");
 
   function onFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -19,24 +18,22 @@ export function BillPhotoInput({ hasCurrentImage }: BillPhotoInputProps) {
   return (
     <div className="rounded border border-slate-200 bg-slate-50 p-4">
       <div className="grid gap-3 sm:grid-cols-2">
-        <button
-          type="button"
-          onClick={() => cameraInputRef.current?.click()}
+        <label
+          htmlFor={`${inputId}-camera`}
           className="focus-ring rounded bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700"
         >
           Take photo
-        </button>
-        <button
-          type="button"
-          onClick={() => galleryInputRef.current?.click()}
+        </label>
+        <label
+          htmlFor={`${inputId}-gallery`}
           className="focus-ring rounded border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
         >
           Choose image
-        </button>
+        </label>
       </div>
 
       <input
-        ref={cameraInputRef}
+        id={`${inputId}-camera`}
         type="file"
         name="cameraBillImage"
         accept="image/*"
@@ -45,7 +42,7 @@ export function BillPhotoInput({ hasCurrentImage }: BillPhotoInputProps) {
         className="sr-only"
       />
       <input
-        ref={galleryInputRef}
+        id={`${inputId}-gallery`}
         type="file"
         name="galleryBillImage"
         accept="image/*"
