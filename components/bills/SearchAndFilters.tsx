@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { RotatingLogo } from "@/components/ui/RotatingLogo";
 import { locationOptions } from "@/lib/locations";
 import { humanizeEnum } from "@/lib/formatters";
 import type { BillFilterValues } from "@/lib/validations/bill";
@@ -15,8 +20,29 @@ type SearchAndFiltersProps = {
 };
 
 export function SearchAndFilters({ filters, parties }: SearchAndFiltersProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  function onSubmit(formData: FormData) {
+    const params = new URLSearchParams();
+
+    for (const [key, value] of formData.entries()) {
+      const trimmedValue = String(value).trim();
+      if (trimmedValue) {
+        params.set(key, trimmedValue);
+      }
+    }
+
+    startTransition(() => {
+      router.push(`/bills${params.toString() ? `?${params.toString()}` : ""}`);
+    });
+  }
+
   return (
-    <form className="grid gap-3 rounded border border-slate-200 bg-white p-4 md:grid-cols-2 lg:grid-cols-[1fr_220px_180px_170px_150px_150px_auto_auto]">
+    <form
+      action={onSubmit}
+      className="grid gap-3 rounded border border-slate-200 bg-white p-4 md:grid-cols-2 lg:grid-cols-[1fr_220px_180px_170px_150px_150px_auto_auto]"
+    >
       <label className="block">
         <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
           Search
@@ -103,9 +129,17 @@ export function SearchAndFilters({ filters, parties }: SearchAndFiltersProps) {
       </label>
       <button
         type="submit"
+        disabled={isPending}
         className="focus-ring h-10 self-end rounded bg-slate-950 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
       >
-        Apply
+        {isPending ? (
+          <span className="inline-flex items-center gap-2">
+            <RotatingLogo label="Applying filters" size="sm" />
+            Applying...
+          </span>
+        ) : (
+          "Apply"
+        )}
       </button>
       <Link
         href="/bills"

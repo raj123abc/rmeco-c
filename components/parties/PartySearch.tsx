@@ -1,6 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { RotatingLogo } from "@/components/ui/RotatingLogo";
 import type { PartyFilterValues } from "@/lib/validations/party";
 
 type PartySearchProps = {
@@ -9,6 +11,7 @@ type PartySearchProps = {
 
 export function PartySearch({ filters }: PartySearchProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   function onSubmit(formData: FormData) {
     const params = new URLSearchParams();
@@ -18,7 +21,9 @@ export function PartySearch({ filters }: PartySearchProps) {
       params.set("q", q);
     }
 
-    router.push(`/parties${params.toString() ? `?${params.toString()}` : ""}`);
+    startTransition(() => {
+      router.push(`/parties${params.toString() ? `?${params.toString()}` : ""}`);
+    });
   }
 
   return (
@@ -32,9 +37,17 @@ export function PartySearch({ filters }: PartySearchProps) {
         />
         <button
           type="submit"
+          disabled={isPending}
           className="h-10 rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
         >
-          Search
+          {isPending ? (
+            <span className="inline-flex items-center gap-2">
+              <RotatingLogo label="Searching" size="sm" />
+              Searching...
+            </span>
+          ) : (
+            "Search"
+          )}
         </button>
       </div>
     </form>
